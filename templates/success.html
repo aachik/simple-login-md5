@@ -1,4 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
 <h1>Success</h1>
 
 <p>password encriptado: {{ data.m }}</p>
 <p>password desencriptado: {{ data.password }} </p>
+
+<a href="{{ url_for('index') }}"> Regresar </a>
+{% endblock %}
