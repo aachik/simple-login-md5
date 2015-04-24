@@ -24,6 +24,7 @@ class Usuario(db.Model):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+
 	if request.method == 'POST':
 		m = hashlib.md5()
 		m.update(request.form['password'].encode('utf-8'))
