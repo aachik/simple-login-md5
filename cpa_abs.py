@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, flash, make_response
+from flask import Flask, render_template, redirect, request, url_for, flash, make_response, jsonify
 from flask.ext.restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 import hashlib
@@ -17,6 +17,12 @@ class Usuario(db.Model):
     def __init__(self, usuario, password):
         self.usuario = usuario
         self.password = password
+    def serialize(self):
+        return {
+        	'id': self.id,
+            'usuario': self.usuario, 
+            'password': self.password
+        }
 
     def __repr__(self):
         return '<Usuario %r>' % self.usuario
@@ -32,9 +38,8 @@ def index():
 		print('login:')
 		print(request.form['email'])
 		print(m)
-		usuario = Usuario.query.filter_by(usuario=request.form['email']).first()
+		usuario = db.session.query(Usuario).filter_by(usuario=request.form['email']).first()
 		print(usuario)
-
 		if m == usuario.password:
 			print('el pass es correcto')
 			data={'m': m, 'password': request.form['password']}
@@ -60,10 +65,23 @@ def sign_up():
 		return render_template('success.html', data=data)
 	return render_template('sign_up.html')
 
+@app.route('/usuario/<usuario>')
+def get_usuario(usuario):
+	result = db.session.query(Usuario).filter_by(usuario=usuario).first()
+	return jsonify(result.serialize())
+
+@app.route('/usuarios')
+def get_all():
+	result = db.session.query(Usuario).all()
+	usuarios = list()
+	for r in result:
+		usuarios.append(r.serialize())
+	return jsonify(usuarios=[e for e in usuarios])
+
 @app.route('/log')
 def log():
-
 	pass
+
 
 if __name__ == '__main__':
     app.run(debug=True)
